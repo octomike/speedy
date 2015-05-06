@@ -10,9 +10,9 @@ var timings = {
   avg1: [],
   avg2: [],
   avg3: [],
-  max: 0,
+  highspeed: 0,
   distance: 0,
-}
+};
 var locationOptions = {
   enableHighAccuracy: true, 
   maximumAge: 1000, 
@@ -24,9 +24,9 @@ function locationSuccess(pos) {
   oldpos = {
     coords: {
       latitude : pos.coords.latitude,
-      longitude : pos.coords.longitude + Math.random()/1000,
+      longitude : pos.coords.longitude + Math.random()/20000 + 1/12000,
     },
-    timestamp: pos.timestamp - 10000
+    timestamp: pos.timestamp - 1000
   };
   var oldcoord = {
     latitude: oldpos.coords.latitude,
@@ -44,8 +44,8 @@ function locationSuccess(pos) {
   var speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
   layout.setSpeed(speed);
   
-  timings.max = speed > timings.max ? speed : timings.max;
-  layout.setMax(timings.max);
+  timings.highspeed = speed > timings.highspeed ? speed : timings.highspeed;
+  layout.setHighspeed(timings.highspeed);
   
   /* TODO: calculate averages */
 }
@@ -59,6 +59,17 @@ function locationSuccessSimulate() {
   locationSuccess(oldpos);
 }
 
+function resetAverages(){
+}
+
+function resetDistance(){
+  timings.distance=0;
+}
+
+function resetHighspeed(){
+  timings.highspeed=0;
+}
+
 /* register event handlers */
 setInterval(locationSuccessSimulate, 1000);
 
@@ -68,3 +79,28 @@ Pebble.addEventListener('ready',
     id = navigator.geolocation.watchPosition(locationSuccess, locationError, locationOptions);
   }
 );
+
+
+var menuSections = [{
+  title: 'Speedy Actions',
+  items: [{
+    title: 'Reset Averages',
+    subtitle: ''
+  },
+  {
+    title: 'Reset Highspeed',
+    subtitle: ''
+  },
+  {
+    title: 'Reset Distance',
+    subtitle: ''
+  }]
+}];
+
+var menuFunctions = [
+  resetAverages,
+  resetHighspeed,
+  resetDistance,
+];
+
+layout.setMenu(menuSections, menuFunctions);

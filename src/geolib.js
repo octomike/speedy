@@ -966,14 +966,9 @@
 			}
 
 			var distance = geolib.getDistance(start, end);
-      console.log('distance: '+distance);
-      console.log('start: ' + JSON.stringify(start));
-      console.log('end: ' + JSON.stringify(end));
 			var time = ((end.time*1)/1000) - ((start.time*1)/1000);
-      console.log('time: '+time);
 			var mPerHr = (distance/time)*3600;
 			var speed = Math.round(mPerHr * this.measures[unit] * 10000)/10000;
-      console.log('speed: '+speed);
 			return speed;
 
 		},

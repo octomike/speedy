@@ -75,7 +75,7 @@ var Layout = function(){
       textAlign: 'right',
     });
 
-    this.maxText = new UI.Text({
+    this.highspeedText = new UI.Text({
       text: 'Max: ',
       color: 'white',
       font: 'gothic-14',
@@ -85,7 +85,7 @@ var Layout = function(){
       backgroundColor: 'black',
     });
   
-    this.maxTextVal = new UI.Text({
+    this.highspeedTextVal = new UI.Text({
       text: '0 km/h',
       color: 'white',
       font: 'gothic-14-bold',
@@ -125,27 +125,49 @@ var Layout = function(){
     this.wind.add(this.avgTextVal);
     this.wind.add(this.distanceText);
     this.wind.add(this.distanceTextVal);
-    this.wind.add(this.maxText);
-    this.wind.add(this.maxTextVal);
+    this.wind.add(this.highspeedText);
+    this.wind.add(this.highspeedTextVal);
   
+    this.menu = new UI.Menu({
+      sections: []
+    });
+      
 };
 
 Layout.prototype = {
   constructor: Layout,
   
-  setSpeed: function(e) {
-    this.speedText.text(e.toFixed(1));
+  setSpeed: function(val) {
+    this.speedText.text(val.toFixed(1));
   },
   
-  setDistance: function(e) {
-    this.distanceTextVal.text((e/1000).toFixed(1) + ' km');
+  setDistance: function(val) {
+    this.distanceTextVal.text((val/1000).toFixed(1) + ' km');
   },
   
-  setMax: function(e) {
-    this.maxTextVal.text(e + 'km/h');
+  setHighspeed: function(val) {
+    this.highspeedTextVal.text(val + 'km/h');
   },
   
-  show: function(e) {
+  setMenu: function(sections,handlers) {
+    for(var i=0; i< sections.length; i++){
+      this.menu.section(i,sections[i]);
+    }
+    var menu = this.menu;
+    var wind = this.wind;
+    this.menu.on('select',function(e){
+      handlers[e.itemIndex]();
+      wind.show();
+      this.hide();
+    });
+    this.wind.on('click','select',function (e){
+      console.log('select button clicked');
+      menu.show();
+      this.hide();
+    });
+  },
+  
+  show: function() {
     this.wind.show();
   },
 };
