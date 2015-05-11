@@ -33,8 +33,7 @@
     },
     "shortName": "Speedy",
     "uuid": "1f457cb3-72fe-43e4-a00a-4b47dd7cfb69",
-    "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1",
     "watchapp": {
         "watchface": false
     }

@@ -7,9 +7,7 @@ layout.show();
 var id;
 var oldpos;
 var timings = {
-  avg1: [],
-  avg2: [],
-  avg3: [],
+  samples: [],  /* holds every received dataport in the last minute */
   highspeed: 0,
   distance: 0,
 };
@@ -19,6 +17,40 @@ var locationOptions = {
   timeout: 5000
 };
 
+function sum(a,b){
+  return a+b;
+}
+
+function updateAverages(speed){
+  /* FIXME: remove samplerate=1/s assumption */
+  
+  var avg1,avg5,avg15;
+  var sum5,sum15;
+  
+  timings.samples.push(speed);
+  avg1 = timings.samples.slice(0,60).reduce(sum,0)/timings.samples.length;
+  avg5 = avg15 = avg1;
+  
+  if (timings.samples.length >= 60){
+    avg1 = timings.samples.slice(-60).reduce(sum,0)/60;
+    sum5 = timings.samples.slice(-60*5).reduce(sum,0);
+    avg5 = sum5/timings.samples.length;
+    avg15 = avg5;
+  }
+  if (timings.samples.length >= 60*5) {
+    avg5 = sum5/(60*5);
+    sum15 = timings.samples.slice(-60*15).reduce(sum,0);
+    avg15 = sum15/timings.samples.length;
+  }
+  if (timings.samples.length >= 60*15) {
+    avg15 = sum15/(60*15);
+    /* discard old sample only when buffer is "full" (15min + x) */
+    timings.samples.shift(); 
+  }
+  
+  /* update layout */
+  layout.setAvg(avg1, avg5, avg15);
+}
 
 function locationSuccess(pos) {
   oldpos = {
@@ -26,7 +58,7 @@ function locationSuccess(pos) {
       latitude : pos.coords.latitude,
       longitude : pos.coords.longitude + Math.random()/20000 + 1/12000,
     },
-    timestamp: pos.timestamp - 1000
+    timestamp: pos.timestamp - 750 - 500*Math.random()
   };
   var oldcoord = {
     latitude: oldpos.coords.latitude,
@@ -47,8 +79,9 @@ function locationSuccess(pos) {
   timings.highspeed = speed > timings.highspeed ? speed : timings.highspeed;
   layout.setHighspeed(timings.highspeed);
   
-  /* TODO: calculate averages */
+  updateAverages(speed);
 }
+
 
 function locationError(err) {
   console.log('location error (' + err.code + '): ' + err.message);
@@ -69,6 +102,7 @@ function resetDistance(){
 function resetHighspeed(){
   timings.highspeed=0;
 }
+
 
 /* register event handlers */
 setInterval(locationSuccessSimulate, 1000);

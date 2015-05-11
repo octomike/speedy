@@ -40,9 +40,10 @@ var Layout = function(){
       text: '23.5',
       color: 'white',
       font: 'bitham-42-light',
-      position: new Vector2(20,32),
-      size: new Vector2(82,44),
+      position: new Vector2(18,34),
+      size: new Vector2(88,44),
       backgroundColor: 'black',
+      borderColor: 'white',
       textAlign: 'right',
     });
   
@@ -50,7 +51,7 @@ var Layout = function(){
       text: 'km/h',
       color: 'white',
       font: 'gothic-14',
-      position: new Vector2(104,60),
+      position: new Vector2(107,62),
       size: new Vector2(28,16),
       backgroundColor: 'black',
     });
@@ -146,7 +147,11 @@ Layout.prototype = {
   },
   
   setHighspeed: function(val) {
-    this.highspeedTextVal.text(val + 'km/h');
+    this.highspeedTextVal.text(val.toFixed(1) + 'km/h');
+  },
+  
+  setAvg: function(val1, val5, val15){
+    this.avgTextVal.text(val1.toFixed(1) + ' ' + val5.toFixed(1) + ' ' + val15.toFixed(1));
   },
   
   setMenu: function(sections,handlers) {
