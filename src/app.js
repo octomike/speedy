@@ -91,13 +91,13 @@ function updateAverages(speed){
 }
 
 function locationSuccess(pos) {
-  if( oldpos == 'undefined' ){
+  if( Speedy.oldpos == 'undefined' ){
     clonepos(pos);
   }
   var oldcoord = {
-    latitude: oldpos.coords.latitude,
-    longitude: oldpos.coords.longitude,
-    time: oldpos.timestamp
+    latitude: Speedy.oldpos.coords.latitude,
+    longitude: Speedy.oldpos.coords.longitude,
+    time: Speedy.oldpos.timestamp
   };
   var newcoord = {
     latitude: pos.coords.latitude,
