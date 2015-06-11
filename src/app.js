@@ -38,18 +38,18 @@ Speedy.menuSections = [{
 }];
 
 Speedy.menuFunctions = [
-  resetAverages,
-  resetHighspeed,
-  resetDistance,
+  Speedy.resetAverages,
+  Speedy.resetHighspeed,
+  Speedy.resetDistance,
 ];
 
 
 /* helpers */
-function sum(a,b){
+Speedy.sum = function(a,b){
   return a+b;
 }
 
-function clonepos(pos){
+Speedy.clonepos = function(pos){
   Speedy.oldpos = {
     coords: {
       latitude : pos.coords.latitude,
@@ -59,25 +59,25 @@ function clonepos(pos){
   };
 }
 
-function updateAverages(speed){
+Speedy.updateAverages = function(speed){
   /* FIXME: remove samplerate=1/s assumption */
 
   var avg1,avg5,avg15;
   var sum5,sum15;
 
   Speedy.timings.samples.push(speed);
-  avg1 = Speedy.timings.samples.slice(0,60).reduce(sum,0)/Speedy.timings.samples.length;
+  avg1 = Speedy.timings.samples.slice(0,60).reduce(Speedy.sum,0)/Speedy.timings.samples.length;
   avg5 = avg15 = avg1;
 
   if (Speedy.timings.samples.length >= 60){
-    avg1 = Speedy.timings.samples.slice(-60).reduce(sum,0)/60;
-    sum5 = Speedy.timings.samples.slice(-60*5).reduce(sum,0);
+    avg1 = Speedy.timings.samples.slice(-60).reduce(Speedy.sum,0)/60;
+    sum5 = Speedy.timings.samples.slice(-60*5).reduce(Speedy.sum,0);
     avg5 = sum5/Speedy.timings.samples.length;
     avg15 = avg5;
   }
   if (Speedy.timings.samples.length >= 60*5) {
     avg5 = sum5/(60*5);
-    sum15 = Speedy.timings.samples.slice(-60*15).reduce(sum,0);
+    sum15 = Speedy.timings.samples.slice(-60*15).reduce(Speedy.sum,0);
     avg15 = sum15/Speedy.timings.samples.length;
   }
   if (Speedy.timings.samples.length >= 60*15) {
@@ -90,9 +90,9 @@ function updateAverages(speed){
   Speedy.layout.setAvg(avg1, avg5, avg15);
 }
 
-function locationSuccess(pos) {
+Speedy.locationSuccess = function(pos){
   if( Speedy.oldpos == 'undefined' ){
-    clonepos(pos);
+    Speedy.clonepos(pos);
   }
   var oldcoord = {
     latitude: Speedy.oldpos.coords.latitude,
@@ -117,26 +117,26 @@ function locationSuccess(pos) {
   Speedy.timings.highspeed = speed > Speedy.timings.highspeed ? speed : Speedy.timings.highspeed;
   Speedy.layout.setHighspeed(Speedy.timings.highspeed);
 
-  updateAverages(speed);
+  Speedy.updateAverages(speed);
 
   console.log(JSON.stringify(pos));
-  clonepos(pos);
+  Speedy.clonepos(pos);
 }
 
 
-function locationError(err) {
+Speedy.locationError = function(err){
   console.log('location error (' + err.code + '): ' + err.message);
 }
 
-function resetAverages(){
+Speedy.resetAverages = function(){
   Speedy.timings.samples=[];
 }
 
-function resetDistance(){
+Speedy.resetDistance = function(){
   Speedy.timings.distance=0;
 }
 
-function resetHighspeed(){
+Speedy.resetHighspeed = function(){
   Speedy.timings.highspeed=0;
 }
 
@@ -150,6 +150,6 @@ Pebble.addEventListener('ready',
     Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
     console.log('registering geolocation handlers');
     // Get location updates
-    Speedy.id = navigator.geolocation.watchPosition(locationSuccess, locationError, Speedy.locationOptions);
+    Speedy.id = navigator.geolocation.watchPosition(Speedy.locationSuccess, Speedy.locationError, Speedy.locationOptions);
   }
 );
