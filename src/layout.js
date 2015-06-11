@@ -1,9 +1,10 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 
-var Layout = function(){
+var Layout = function(debug){
   
     this.wind = new UI.Window();
+    this.debug = debug;
     
     /* 168x144 */
     this.circleOuter = new UI.Circle({
@@ -43,7 +44,6 @@ var Layout = function(){
       position: new Vector2(18,34),
       size: new Vector2(88,44),
       backgroundColor: 'black',
-      borderColor: 'white',
       textAlign: 'right',
     });
   
@@ -115,6 +115,16 @@ var Layout = function(){
       backgroundColor: 'black',
       textAlign: 'right',
     });
+    this.debugText = new UI.Text({
+      text: 'debug layer',
+      color: 'black',
+      font: 'gothic-14-bold',
+      position: new Vector2(0,152),
+      size: new Vector2(144,16),
+      backgroundColor: 'yellow',
+      textAlign: 'left',
+    });
+
 
     this.wind.add(this.circleOuter);
     this.wind.add(this.circleInner);
@@ -128,6 +138,8 @@ var Layout = function(){
     this.wind.add(this.distanceTextVal);
     this.wind.add(this.highspeedText);
     this.wind.add(this.highspeedTextVal);
+    if( this.debug )
+      this.wind.add(this.debugText);
   
     this.menu = new UI.Menu({
       sections: []
@@ -137,6 +149,8 @@ var Layout = function(){
 
 Layout.prototype = {
   constructor: Layout,
+  
+  debug: false,
   
   setSpeed: function(val) {
     this.speedText.text(val.toFixed(1));
@@ -169,6 +183,11 @@ Layout.prototype = {
       console.log('select button clicked');
       menu.show();
       this.hide();
+    });
+    this.wind.on('click','back',function (e){
+      console.log('back button clicked');
+      menu.hide();
+      this.show();
     });
   },
   

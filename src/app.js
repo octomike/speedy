@@ -1,24 +1,62 @@
 var Geolib = require('geolib');
 var Layout = require('layout');
 
-var layout = new Layout();
-layout.show();
 
-var id;
-var oldpos;
+var layout = new Layout(true);
+var oldpos; /* last position to get distance from */
+
+/* data storage */
 var timings = {
   samples: [],  /* holds every received dataport in the last minute */
   highspeed: 0,
   distance: 0,
 };
+
+/* watchposition */
+var id; 
 var locationOptions = {
   enableHighAccuracy: true, 
   maximumAge: 1000, 
   timeout: 5000
 };
 
+/* menu config */
+var menuSections = [{
+  title: 'Speedy Actions',
+  items: [{
+    title: 'Reset Averages',
+    subtitle: ''
+  },
+  {
+    title: 'Reset Highspeed',
+    subtitle: ''
+  },
+  {
+    title: 'Reset Distance',
+    subtitle: ''
+  }]
+}];
+
+var menuFunctions = [
+  resetAverages,
+  resetHighspeed,
+  resetDistance,
+];
+
+
+/* helpers */
 function sum(a,b){
   return a+b;
+}
+
+function clonepos(pos){
+  oldpos = {
+    coords: {
+      latitude : pos.coords.latitude,
+      longitude : pos.coords.longitude,
+    },
+    timestamp: pos.timestamp
+  };
 }
 
 function updateAverages(speed){
@@ -53,13 +91,9 @@ function updateAverages(speed){
 }
 
 function locationSuccess(pos) {
-  oldpos = {
-    coords: {
-      latitude : pos.coords.latitude,
-      longitude : pos.coords.longitude + Math.random()/20000 + 1/12000,
-    },
-    timestamp: pos.timestamp - 750 - 500*Math.random()
-  };
+  if( oldpos == 'undefined' ){
+    clonepos(pos);
+  }
   var oldcoord = {
     latitude: oldpos.coords.latitude,
     longitude: oldpos.coords.longitude,
@@ -73,13 +107,20 @@ function locationSuccess(pos) {
   timings.distance += Geolib.getDistance(oldcoord,newcoord);
   layout.setDistance(timings.distance);
   
-  var speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
+  var speed;
+  if( timings.distance === 0 )
+    speed = 0;
+  else 
+    speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
   layout.setSpeed(speed);
   
   timings.highspeed = speed > timings.highspeed ? speed : timings.highspeed;
   layout.setHighspeed(timings.highspeed);
   
   updateAverages(speed);
+  
+  console.log(JSON.stringify(pos));
+  clonepos(pos);
 }
 
 
@@ -87,12 +128,8 @@ function locationError(err) {
   console.log('location error (' + err.code + '): ' + err.message);
 }
 
-/* to be removed once I have a real pebble! */
-function locationSuccessSimulate() {
-  locationSuccess(oldpos);
-}
-
 function resetAverages(){
+  timings.samples=[];
 }
 
 function resetDistance(){
@@ -105,36 +142,14 @@ function resetHighspeed(){
 
 
 /* register event handlers */
-setInterval(locationSuccessSimulate, 1000);
+//setInterval(locationSuccessSimulate, 1000);
 
 Pebble.addEventListener('ready',
   function(e) {
+    layout.show();
+    layout.setMenu(menuSections, menuFunctions);
+    console.log('registering geolocation handlers');
     // Get location updates
     id = navigator.geolocation.watchPosition(locationSuccess, locationError, locationOptions);
   }
 );
-
-
-var menuSections = [{
-  title: 'Speedy Actions',
-  items: [{
-    title: 'Reset Averages',
-    subtitle: ''
-  },
-  {
-    title: 'Reset Highspeed',
-    subtitle: ''
-  },
-  {
-    title: 'Reset Distance',
-    subtitle: ''
-  }]
-}];
-
-var menuFunctions = [
-  resetAverages,
-  resetHighspeed,
-  resetDistance,
-];
-
-layout.setMenu(menuSections, menuFunctions);
