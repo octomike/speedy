@@ -87,7 +87,7 @@ function updateAverages(speed){
   }
 
   /* update layout */
-  layout.setAvg(avg1, avg5, avg15);
+  Speedy.layout.setAvg(avg1, avg5, avg15);
 }
 
 function locationSuccess(pos) {
@@ -105,17 +105,17 @@ function locationSuccess(pos) {
     time: pos.timestamp
   };
   Speedy.timings.distance += Geolib.getDistance(oldcoord,newcoord);
-  layout.setDistance(Speedy.timings.distance);
+  Speedy.layout.setDistance(Speedy.timings.distance);
 
   var speed;
   if( Speedy.timings.distance === 0 )
     speed = 0;
   else
     speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
-  layout.setSpeed(speed);
+  Speedy.layout.setSpeed(speed);
 
   Speedy.timings.highspeed = speed > Speedy.timings.highspeed ? speed : Speedy.timings.highspeed;
-  layout.setHighspeed(Speedy.timings.highspeed);
+  Speedy.layout.setHighspeed(Speedy.timings.highspeed);
 
   updateAverages(speed);
 
@@ -146,8 +146,8 @@ function resetHighspeed(){
 
 Pebble.addEventListener('ready',
   function(e) {
-    layout.show();
-    layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
+    Speedy.layout.show();
+    Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
     console.log('registering geolocation handlers');
     // Get location updates
     Speedy.id = navigator.geolocation.watchPosition(locationSuccess, locationError, Speedy.locationOptions);
