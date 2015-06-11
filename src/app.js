@@ -13,10 +13,10 @@ var timings = {
 };
 
 /* watchposition */
-var id; 
+var id;
 var locationOptions = {
-  enableHighAccuracy: true, 
-  maximumAge: 1000, 
+  enableHighAccuracy: true,
+  maximumAge: 1000,
   timeout: 5000
 };
 
@@ -61,14 +61,14 @@ function clonepos(pos){
 
 function updateAverages(speed){
   /* FIXME: remove samplerate=1/s assumption */
-  
+
   var avg1,avg5,avg15;
   var sum5,sum15;
-  
+
   timings.samples.push(speed);
   avg1 = timings.samples.slice(0,60).reduce(sum,0)/timings.samples.length;
   avg5 = avg15 = avg1;
-  
+
   if (timings.samples.length >= 60){
     avg1 = timings.samples.slice(-60).reduce(sum,0)/60;
     sum5 = timings.samples.slice(-60*5).reduce(sum,0);
@@ -83,9 +83,9 @@ function updateAverages(speed){
   if (timings.samples.length >= 60*15) {
     avg15 = sum15/(60*15);
     /* discard old sample only when buffer is "full" (15min + x) */
-    timings.samples.shift(); 
+    timings.samples.shift();
   }
-  
+
   /* update layout */
   layout.setAvg(avg1, avg5, avg15);
 }
@@ -106,19 +106,19 @@ function locationSuccess(pos) {
   };
   timings.distance += Geolib.getDistance(oldcoord,newcoord);
   layout.setDistance(timings.distance);
-  
+
   var speed;
   if( timings.distance === 0 )
     speed = 0;
-  else 
+  else
     speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
   layout.setSpeed(speed);
-  
+
   timings.highspeed = speed > timings.highspeed ? speed : timings.highspeed;
   layout.setHighspeed(timings.highspeed);
-  
+
   updateAverages(speed);
-  
+
   console.log(JSON.stringify(pos));
   clonepos(pos);
 }

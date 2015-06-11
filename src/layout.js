@@ -2,10 +2,10 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 
 var Layout = function(debug){
-  
+
     this.wind = new UI.Window();
     this.debug = debug;
-    
+
     /* 168x144 */
     this.circleOuter = new UI.Circle({
       position: new Vector2(72,70),
@@ -24,7 +24,7 @@ var Layout = function(debug){
       size: new Vector2(116,72),
       backgroundColor: 'black'
     });
-  
+
     this.circleOverlay2 = new UI.Rect({
       position: new Vector2(0,120),
       size: new Vector2(144,48),
@@ -36,7 +36,7 @@ var Layout = function(debug){
       size: new Vector2(116,72),
       backgroundColor: 'white'
     });
-  
+
     this.speedText = new UI.Text({
       text: '23.5',
       color: 'white',
@@ -46,7 +46,7 @@ var Layout = function(debug){
       backgroundColor: 'black',
       textAlign: 'right',
     });
-  
+
     this.speedTextUnit = new UI.Text({
       text: 'km/h',
       color: 'white',
@@ -55,7 +55,7 @@ var Layout = function(debug){
       size: new Vector2(28,16),
       backgroundColor: 'black',
     });
-  
+
     this.avgText = new UI.Text({
       text: 'Avg: ',
       color: 'white',
@@ -65,7 +65,7 @@ var Layout = function(debug){
       backgroundColor: 'black',
       textAlign: 'left',
     });
-  
+
     this.avgTextVal = new UI.Text({
       text: '01.1 10.2 15.3',
       color: 'white',
@@ -85,7 +85,7 @@ var Layout = function(debug){
       textAlign: 'left',
       backgroundColor: 'black',
     });
-  
+
     this.highspeedTextVal = new UI.Text({
       text: '0 km/h',
       color: 'white',
@@ -95,7 +95,7 @@ var Layout = function(debug){
       backgroundColor: 'black',
       textAlign: 'right',
     });
-  
+
     this.distanceText = new UI.Text({
       text: 'Distance: ',
       color: 'white',
@@ -105,7 +105,7 @@ var Layout = function(debug){
       backgroundColor: 'black',
       textAlign: 'left',
     });
-  
+
     this.distanceTextVal = new UI.Text({
       text: '0',
       color: 'white',
@@ -140,34 +140,34 @@ var Layout = function(debug){
     this.wind.add(this.highspeedTextVal);
     if( this.debug )
       this.wind.add(this.debugText);
-  
+
     this.menu = new UI.Menu({
       sections: []
     });
-      
+
 };
 
 Layout.prototype = {
   constructor: Layout,
-  
+
   debug: false,
-  
+
   setSpeed: function(val) {
     this.speedText.text(val.toFixed(1));
   },
-  
+
   setDistance: function(val) {
     this.distanceTextVal.text((val/1000).toFixed(1) + ' km');
   },
-  
+
   setHighspeed: function(val) {
     this.highspeedTextVal.text(val.toFixed(1) + 'km/h');
   },
-  
+
   setAvg: function(val1, val5, val15){
     this.avgTextVal.text(val1.toFixed(1) + ' ' + val5.toFixed(1) + ' ' + val15.toFixed(1));
   },
-  
+
   setMenu: function(sections,handlers) {
     for(var i=0; i< sections.length; i++){
       this.menu.section(i,sections[i]);
@@ -190,7 +190,7 @@ Layout.prototype = {
       this.show();
     });
   },
-  
+
   show: function() {
     this.wind.show();
   },
