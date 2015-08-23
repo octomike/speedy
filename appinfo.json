@@ -31,12 +31,13 @@
             }
         ]
     },
+    "sdkVersion": "3",
     "shortName": "Speedy",
     "uuid": "1f457cb3-72fe-43e4-a00a-4b47dd7cfb69",
-    "sdkVersion": "3",
     "versionCode": 1,
     "versionLabel": "1.0",
     "watchapp": {
+        "hiddenApp": false,
         "watchface": false
     }
 }

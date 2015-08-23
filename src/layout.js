@@ -4,7 +4,7 @@ var Vector2 = require('vector2');
 var Layout = function(debug){
 
     this.wind = new UI.Window();
-    this.debug = debug;
+    this.debug = true;
 
     /* 168x144 */
     this.circleOuter = new UI.Circle({

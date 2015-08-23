@@ -37,61 +37,82 @@ Speedy.menuSections = [{
   }]
 }];
 
-Speedy.menuFunctions = [
-  Speedy.resetAverages,
-  Speedy.resetHighspeed,
-  Speedy.resetDistance,
-];
-
 
 /* helpers */
 Speedy.sum = function(a,b){
   return a+b;
-}
+};
 
 Speedy.clonepos = function(pos){
   Speedy.oldpos = {
     coords: {
       latitude : pos.coords.latitude,
       longitude : pos.coords.longitude,
+      accuracy : pos.coords.accuracy,
     },
     timestamp: pos.timestamp
   };
-}
+};
 
-Speedy.updateAverages = function(speed){
-  /* FIXME: remove samplerate=1/s assumption */
+Speedy.updateAverages = function(speed, timedelta){
+  /* FIXME: somewhat inefficient, figure out how to do a continuous update */
 
   var avg1,avg5,avg15;
-  var sum5,sum15;
+  var num1,num5,num15;
+  var time1,time5,time15;
 
-  Speedy.timings.samples.push(speed);
-  avg1 = Speedy.timings.samples.slice(0,60).reduce(Speedy.sum,0)/Speedy.timings.samples.length;
-  avg5 = avg15 = avg1;
-
-  if (Speedy.timings.samples.length >= 60){
-    avg1 = Speedy.timings.samples.slice(-60).reduce(Speedy.sum,0)/60;
-    sum5 = Speedy.timings.samples.slice(-60*5).reduce(Speedy.sum,0);
-    avg5 = sum5/Speedy.timings.samples.length;
-    avg15 = avg5;
+  num1=num5=num15=0;
+  time1=time5=time15=0;
+  Speedy.timings.samples.push({ speed: speed, timedelta: timedelta });
+  for( var i=0 ; i<Speedy.timings.samples.length ; i++ ){
+    if(time1 <= 60000 ){
+      time1 += Speedy.timings.samples[i].timedelta;
+      num1++;
+    }
+    if(time5 <= 5*60000 ){
+      time5 += Speedy.timings.samples[i].timedelta;
+      num5++;
+    }
+    if(time15 <= 15*60000 ){
+      time15 += Speedy.timings.samples[i].timedelta;
+      num15++;
+    }
   }
-  if (Speedy.timings.samples.length >= 60*5) {
-    avg5 = sum5/(60*5);
-    sum15 = Speedy.timings.samples.slice(-60*15).reduce(Speedy.sum,0);
-    avg15 = sum15/Speedy.timings.samples.length;
-  }
-  if (Speedy.timings.samples.length >= 60*15) {
-    avg15 = sum15/(60*15);
+  //console.log(JSON.stringify(Speedy.timings.samples));
+  
+  avg1 = Speedy.timings.samples.slice(-num1).reduce(function(pre,cur,ind,arr){
+          // aggregate the distances travelled, where every two conescutive samples
+          // are assumed to be connected in a linear way
+          // dv = [ (v1-v0)*(t1-t0)/2 + (v2-v1)(t2-t1)/2 ]/(t2-t0)
+          var a=arr[ind-1];
+          var b=arr[ind];
+          //console.log(JSON.stringify({ a: a, b: b}));
+          return (a.speed + b.speed)*b.timedelta/1000/2; 
+         })/time1;
+  avg5 = Speedy.timings.samples.slice(-num5).reduce(function(pre,cur,ind,arr){
+          var a=arr[ind-1];
+          var b=arr[ind];
+          return (a.speed + b.speed)*b.timedelta/1000/2; 
+         })/time5;
+  avg15 = Speedy.timings.samples.slice(-num15).reduce(function(pre,cur,ind,arr){
+            var a=arr[ind-1];
+            var b=arr[ind];
+            return (a.speed + b.speed)*b.timedelta/1000/2; 
+          })/time15;
+  
+  if (time15 > 15*60000) {
     /* discard old sample only when buffer is "full" (15min + x) */
     Speedy.timings.samples.shift();
   }
+  //console.log(JSON.stringify({num1: num1, num5: num5, num15: num15}));
+  //console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
 
   /* update layout */
-  Speedy.layout.setAvg(avg1, avg5, avg15);
-}
+  Speedy.layout.setAvg(3.6*avg1, 3.6*avg5, 3.6*avg15);
+};
 
 Speedy.locationSuccess = function(pos){
-  if( Speedy.oldpos == 'undefined' ){
+  if( typeof(Speedy.oldpos) ==  'undefined' ){
     Speedy.clonepos(pos);
   }
   var oldcoord = {
@@ -104,52 +125,71 @@ Speedy.locationSuccess = function(pos){
     longitude: pos.coords.longitude,
     time: pos.timestamp
   };
-  Speedy.timings.distance += Geolib.getDistance(oldcoord,newcoord);
+  if (newcoord.time - oldcoord.time < 0)
+    return; // TODO drop out of order updates for now
+  var d = Geolib.getDistance(oldcoord,newcoord);
+  //d = d - Speedy.oldpos.coords.accuracy - pos.coords.accuracy;
+  d = d - pos.coords.accuracy;
+  Speedy.timings.distance += d > 0 ? d : 0;
   Speedy.layout.setDistance(Speedy.timings.distance);
 
   var speed;
   if( Speedy.timings.distance === 0 )
     speed = 0;
-  else
-    speed = Geolib.getSpeed(oldcoord,newcoord, { unit: 'kmh' });
-  Speedy.layout.setSpeed(speed);
+  else {
+    //if(pos.coords.speed !== null)
+    //  speed = pos.coords.speed;
+    //else{
+      speed = d/(newcoord.time - oldcoord.time);
+    //}
+  }
+  Speedy.layout.setSpeed(3.6*speed);
 
   Speedy.timings.highspeed = speed > Speedy.timings.highspeed ? speed : Speedy.timings.highspeed;
-  Speedy.layout.setHighspeed(Speedy.timings.highspeed);
+  Speedy.layout.setHighspeed(3.6*Speedy.timings.highspeed);
 
-  Speedy.updateAverages(speed);
+  //console.log(JSON.stringify(speed));
+  //console.log(JSON.stringify(pos));
+  Speedy.updateAverages(speed, newcoord.time - oldcoord.time);
 
-  console.log(JSON.stringify(pos));
   Speedy.clonepos(pos);
-}
+};
 
 
 Speedy.locationError = function(err){
-  console.log('location error (' + err.code + '): ' + err.message);
-}
+console.log('location error (' + err.code + '): ' + err.message);
+};
 
 Speedy.resetAverages = function(){
   Speedy.timings.samples=[];
-}
+};
 
 Speedy.resetDistance = function(){
   Speedy.timings.distance=0;
-}
+};
 
 Speedy.resetHighspeed = function(){
   Speedy.timings.highspeed=0;
-}
+};
 
+Speedy.menuFunctions = [
+  Speedy.resetAverages,
+  Speedy.resetHighspeed,
+  Speedy.resetDistance,
+];
 
 /* register event handlers */
 //setInterval(locationSuccessSimulate, 1000);
 
 Pebble.addEventListener('ready',
   function(e) {
-    Speedy.layout.show();
-    Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
-    console.log('registering geolocation handlers');
-    // Get location updates
-    Speedy.id = navigator.geolocation.watchPosition(Speedy.locationSuccess, Speedy.locationError, Speedy.locationOptions);
   }
 );
+
+Speedy.layout.show();
+Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
+console.log('registering geolocation handlers');
+console.log(JSON.stringify(Speedy.resetAverages));
+console.log(JSON.stringify(Speedy.menuFunctions));
+// Get location updates
+Speedy.id = navigator.geolocation.watchPosition(Speedy.locationSuccess, Speedy.locationError, Speedy.locationOptions);
