@@ -88,24 +88,24 @@ Speedy.updateAverages = function(speed, timedelta){
           var b=arr[ind];
           //console.log(JSON.stringify({ a: a, b: b}));
           return (a.speed + b.speed)*b.timedelta/1000/2; 
-         })/time1;
+         })/time1/1000;
   avg5 = Speedy.timings.samples.slice(-num5).reduce(function(pre,cur,ind,arr){
           var a=arr[ind-1];
           var b=arr[ind];
           return (a.speed + b.speed)*b.timedelta/1000/2; 
-         })/time5;
+         })/time5/1000;
   avg15 = Speedy.timings.samples.slice(-num15).reduce(function(pre,cur,ind,arr){
             var a=arr[ind-1];
             var b=arr[ind];
             return (a.speed + b.speed)*b.timedelta/1000/2; 
-          })/time15;
+          })/time15/1000;
   
   if (time15 > 15*60000) {
     /* discard old sample only when buffer is "full" (15min + x) */
     Speedy.timings.samples.shift();
   }
   //console.log(JSON.stringify({num1: num1, num5: num5, num15: num15}));
-  //console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
+  console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
 
   /* update layout */
   Speedy.layout.setAvg(3.6*avg1, 3.6*avg5, 3.6*avg15);
@@ -114,6 +114,7 @@ Speedy.updateAverages = function(speed, timedelta){
 Speedy.locationSuccess = function(pos){
   if( typeof(Speedy.oldpos) ==  'undefined' ){
     Speedy.clonepos(pos);
+    Speedy.layout.setSpeed(0);
   }
   var oldcoord = {
     latitude: Speedy.oldpos.coords.latitude,
@@ -129,19 +130,22 @@ Speedy.locationSuccess = function(pos){
     return; // TODO drop out of order updates for now
   var d = Geolib.getDistance(oldcoord,newcoord);
   //d = d - Speedy.oldpos.coords.accuracy - pos.coords.accuracy;
-  d = d - pos.coords.accuracy;
-  Speedy.timings.distance += d > 0 ? d : 0;
+  //d = d - pos.coords.accuracy;
+  //Speedy.timings.distance += d > 0 ? d : 0;
+  d = d > 0 ? d : 0;
+  //console.log(JSON.stringify(d));
+  Speedy.timings.distance += d;
   Speedy.layout.setDistance(Speedy.timings.distance);
 
   var speed;
-  if( Speedy.timings.distance === 0 )
-    speed = 0;
+  if( d === 0 )
+    return;
   else {
-    //if(pos.coords.speed !== null)
-    //  speed = pos.coords.speed;
-    //else{
-      speed = d/(newcoord.time - oldcoord.time);
-    //}
+    if(pos.coords.speed !== null)
+      speed = pos.coords.speed;
+    else{
+      speed = d/(newcoord.time - oldcoord.time)/1000;
+    }
   }
   Speedy.layout.setSpeed(3.6*speed);
 

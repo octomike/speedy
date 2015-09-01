@@ -177,17 +177,16 @@ Layout.prototype = {
     this.menu.on('select',function(e){
       handlers[e.itemIndex]();
       wind.show();
-      this.hide();
+      menu.hide();
     });
     this.wind.on('click','select',function (e){
       console.log('select button clicked');
       menu.show();
-      this.hide();
     });
     this.wind.on('click','back',function (e){
       console.log('back button clicked');
+      wind.show();
       menu.hide();
-      this.show();
     });
   },
 
