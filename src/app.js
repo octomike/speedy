@@ -48,13 +48,14 @@ Speedy.clonepos = function(pos){
     coords: {
       latitude : pos.coords.latitude,
       longitude : pos.coords.longitude,
+      altitude: pos.coords.altitude,
       accuracy : pos.coords.accuracy,
     },
     timestamp: pos.timestamp
   };
 };
 
-Speedy.updateAverages = function(speed, timedelta){
+Speedy.updateAverages = function(distance, timedelta){
   /* FIXME: somewhat inefficient, figure out how to do a continuous update */
 
   var avg1,avg5,avg15;
@@ -63,8 +64,8 @@ Speedy.updateAverages = function(speed, timedelta){
 
   num1=num5=num15=0;
   time1=time5=time15=0;
-  Speedy.timings.samples.push({ speed: speed, timedelta: timedelta });
-  for( var i=0 ; i<Speedy.timings.samples.length ; i++ ){
+  Speedy.timings.samples.push({ distance: distance, timedelta: timedelta });
+  for( var i=Speedy.timings.samples.length-1 ; i >=0 ; i-- ){
     if(time1 <= 60000 ){
       time1 += Speedy.timings.samples[i].timedelta;
       num1++;
@@ -80,32 +81,23 @@ Speedy.updateAverages = function(speed, timedelta){
   }
   //console.log(JSON.stringify(Speedy.timings.samples));
   
-  avg1 = Speedy.timings.samples.slice(-num1).reduce(function(pre,cur,ind,arr){
-          // aggregate the distances travelled, where every two conescutive samples
-          // are assumed to be connected in a linear way
-          // dv = [ (v1-v0)*(t1-t0)/2 + (v2-v1)(t2-t1)/2 ]/(t2-t0)
-          var a=arr[ind-1];
-          var b=arr[ind];
-          //console.log(JSON.stringify({ a: a, b: b}));
-          return (a.speed + b.speed)*b.timedelta/1000/2; 
-         })/time1/1000;
-  avg5 = Speedy.timings.samples.slice(-num5).reduce(function(pre,cur,ind,arr){
-          var a=arr[ind-1];
-          var b=arr[ind];
-          return (a.speed + b.speed)*b.timedelta/1000/2; 
-         })/time5/1000;
-  avg15 = Speedy.timings.samples.slice(-num15).reduce(function(pre,cur,ind,arr){
-            var a=arr[ind-1];
-            var b=arr[ind];
-            return (a.speed + b.speed)*b.timedelta/1000/2; 
-          })/time15/1000;
+  avg1 = Speedy.timings.samples.slice(-num1).reduce(function(a,b){
+          return (a + b.distance);
+         },0)*1000/time1;
+  avg5 = Speedy.timings.samples.slice(-num5).reduce(function(a,b){
+          return (a + b.distance);
+         },0)*1000/time5;
+  avg15 = Speedy.timings.samples.slice(-num15).reduce(function(a,b){
+            return (a + b.distance);
+          },0)*1000/time15;
   
   if (time15 > 15*60000) {
     /* discard old sample only when buffer is "full" (15min + x) */
     Speedy.timings.samples.shift();
   }
   //console.log(JSON.stringify({num1: num1, num5: num5, num15: num15}));
-  console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
+  //console.log(JSON.stringify({time1: time1, time5: time5, time15: time15}));
+  //console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
 
   /* update layout */
   Speedy.layout.setAvg(3.6*avg1, 3.6*avg5, 3.6*avg15);
@@ -119,11 +111,13 @@ Speedy.locationSuccess = function(pos){
   var oldcoord = {
     latitude: Speedy.oldpos.coords.latitude,
     longitude: Speedy.oldpos.coords.longitude,
+    altitude: Speedy.oldpos.coords.altitude,
     time: Speedy.oldpos.timestamp
   };
   var newcoord = {
     latitude: pos.coords.latitude,
     longitude: pos.coords.longitude,
+    altitude: pos.coords.altitude,
     time: pos.timestamp
   };
   if (newcoord.time - oldcoord.time < 0)
@@ -152,9 +146,8 @@ Speedy.locationSuccess = function(pos){
   Speedy.timings.highspeed = speed > Speedy.timings.highspeed ? speed : Speedy.timings.highspeed;
   Speedy.layout.setHighspeed(3.6*Speedy.timings.highspeed);
 
-  //console.log(JSON.stringify(speed));
-  //console.log(JSON.stringify(pos));
-  Speedy.updateAverages(speed, newcoord.time - oldcoord.time);
+  //console.log(JSON.stringify({speed: speed}));
+  Speedy.updateAverages(d, newcoord.time - oldcoord.time);
 
   Speedy.clonepos(pos);
 };
