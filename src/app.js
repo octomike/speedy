@@ -4,7 +4,7 @@ var Layout = require('layout');
 /* namespace */
 var Speedy = {};
 
-Speedy.layout = new Layout(true);
+Speedy.layout = new Layout({debug: true});
 
 /* data storage */
 Speedy.timings = {

@@ -1,10 +1,26 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 
-var Layout = function(debug){
+var Layout = function(opt){
 
     this.wind = new UI.Window();
-    this.debug = true;
+    this.debug = opt.debug;
+
+    this.debugBorderColor = function(){
+      if( this.debug )
+        return 'white'
+      else
+        return 'black'
+    };
+
+    this.initNumber = function(){
+      if( this.debug ){
+        var num = 20 + Math.random()*30;
+        return num.toFixed(1);
+      } else {
+        return '--.-'
+      }
+    };
 
     /* 144x152 */
     this.circleOuter = new UI.Circle({
@@ -37,14 +53,15 @@ var Layout = function(debug){
       backgroundColor: 'white'
     });
 
-    this.speedText = new UI.Text({
-      text: '--.-',
+    this.speedTextVal = new UI.Text({
+      text: this.initNumber(),
       color: 'white',
       font: 'bitham-42-bold',
       position: new Vector2(19,34),
       size: new Vector2(104,44),
       backgroundColor: 'black',
       textAlign: 'right',
+      borderColor: this.debugBorderColor(),
     });
 
     this.speedTextUnit = new UI.Text({
@@ -54,26 +71,29 @@ var Layout = function(debug){
       position: new Vector2(58,18),
       size: new Vector2(28,16),
       backgroundColor: 'black',
+      borderColor: this.debugBorderColor(),
     });
 
-    this.avgText = new UI.Text({
-      text: 'Avg: ',
+    this.avgTextVal = new UI.Text({
+      text: this.initNumber()+'\n'+this.initNumber()+'\n'+this.initNumber(),
       color: 'white',
       font: 'gothic-24-bold',
       position: new Vector2(30,78),
       size: new Vector2(40,74),
       backgroundColor: 'black',
       textAlign: 'right',
+      borderColor: this.debugBorderColor(),
     });
 
-    this.avgTextVal = new UI.Text({
-      text: '--.- --.- --.-',
+    this.highspeedTextVal = new UI.Text({
+      text: this.initNumber(),
       color: 'white',
       font: 'gothic-28',
       position: new Vector2(70,78),
       size: new Vector2(50,30),
       backgroundColor: 'black',
       textAlign: 'right',
+      borderColor: this.debugBorderColor(),
     });
 
     this.highspeedTextUnit = new UI.Text({
@@ -84,16 +104,18 @@ var Layout = function(debug){
       size: new Vector2(22,12),
       textAlign: 'right',
       backgroundColor: 'black',
+      borderColor: this.debugBorderColor(),
     });
 
-    this.highspeedTextVal = new UI.Text({
-      text: '- km/h',
+    this.distanceTextVal = new UI.Text({
+      text: this.initNumber(),
       color: 'white',
       font: 'gothic-28',
       position: new Vector2(70,108),
       size: new Vector2(50,30),
       backgroundColor: 'black',
       textAlign: 'right',
+      borderColor: this.debugBorderColor(),
     });
 
     this.distanceTextUnit = new UI.Text({
@@ -104,6 +126,7 @@ var Layout = function(debug){
       size: new Vector2(22,12),
       textAlign: 'right',
       backgroundColor: 'black',
+      borderColor: this.debugBorderColor(),
     });
 
     this.debugText = new UI.Text({
