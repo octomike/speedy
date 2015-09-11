@@ -6,7 +6,7 @@ var Layout = function(debug){
     this.wind = new UI.Window();
     this.debug = true;
 
-    /* 168x144 */
+    /* 144x152 */
     this.circleOuter = new UI.Circle({
       position: new Vector2(72,70),
       radius: 66,
@@ -40,9 +40,9 @@ var Layout = function(debug){
     this.speedText = new UI.Text({
       text: '--.-',
       color: 'white',
-      font: 'bitham-42-light',
-      position: new Vector2(18,34),
-      size: new Vector2(88,44),
+      font: 'bitham-42-bold',
+      position: new Vector2(19,34),
+      size: new Vector2(104,44),
       backgroundColor: 'black',
       textAlign: 'right',
     });
@@ -51,7 +51,7 @@ var Layout = function(debug){
       text: 'km/h',
       color: 'white',
       font: 'gothic-14',
-      position: new Vector2(107,62),
+      position: new Vector2(58,18),
       size: new Vector2(28,16),
       backgroundColor: 'black',
     });
@@ -59,68 +59,59 @@ var Layout = function(debug){
     this.avgText = new UI.Text({
       text: 'Avg: ',
       color: 'white',
-      font: 'gothic-14',
-      position: new Vector2(34,84),
-      size: new Vector2(30,16),
+      font: 'gothic-24-bold',
+      position: new Vector2(30,78),
+      size: new Vector2(40,74),
       backgroundColor: 'black',
-      textAlign: 'left',
+      textAlign: 'right',
     });
 
     this.avgTextVal = new UI.Text({
       text: '--.- --.- --.-',
       color: 'white',
-      font: 'gothic-14',
-      position: new Vector2(64,84),
-      size: new Vector2(74,16),
+      font: 'gothic-28',
+      position: new Vector2(70,78),
+      size: new Vector2(50,30),
       backgroundColor: 'black',
       textAlign: 'right',
     });
 
-    this.highspeedText = new UI.Text({
-      text: 'Max: ',
+    this.highspeedTextUnit = new UI.Text({
+      text: 'km/h',
       color: 'white',
-      font: 'gothic-14',
-      position: new Vector2(34,100),
-      size: new Vector2(30,16),
-      textAlign: 'left',
+      font: 'gothic-09',
+      position: new Vector2(120,96),
+      size: new Vector2(22,12),
+      textAlign: 'right',
       backgroundColor: 'black',
     });
 
     this.highspeedTextVal = new UI.Text({
       text: '- km/h',
       color: 'white',
-      font: 'gothic-14-bold',
-      position: new Vector2(64,100),
-      size: new Vector2(74,16),
+      font: 'gothic-28',
+      position: new Vector2(70,108),
+      size: new Vector2(50,30),
       backgroundColor: 'black',
       textAlign: 'right',
     });
 
-    this.distanceText = new UI.Text({
-      text: 'Distance: ',
+    this.distanceTextUnit = new UI.Text({
+      text: 'km',
       color: 'white',
-      font: 'gothic-14',
-      position: new Vector2(34,116),
-      size: new Vector2(56,16),
+      font: 'gothic-09',
+      position: new Vector2(120,126),
+      size: new Vector2(22,12),
+      textAlign: 'right',
       backgroundColor: 'black',
-      textAlign: 'left',
     });
 
-    this.distanceTextVal = new UI.Text({
-      text: '0',
-      color: 'white',
-      font: 'gothic-14-bold',
-      position: new Vector2(90,116),
-      size: new Vector2(48,16),
-      backgroundColor: 'black',
-      textAlign: 'right',
-    });
     this.debugText = new UI.Text({
       text: 'debug layer',
       color: 'black',
-      font: 'gothic-14-bold',
-      position: new Vector2(0,152),
-      size: new Vector2(144,16),
+      font: 'gothic-09',
+      position: new Vector2(70,139),
+      size: new Vector2(73,12),
       backgroundColor: 'yellow',
       textAlign: 'left',
     });
@@ -130,13 +121,12 @@ var Layout = function(debug){
     this.wind.add(this.circleInner);
     this.wind.add(this.circleOverlay);
     this.wind.add(this.circleOverlay2);
-    this.wind.add(this.speedText);
-    this.wind.add(this.speedTextUnit);
-    this.wind.add(this.avgText);
     this.wind.add(this.avgTextVal);
-    this.wind.add(this.distanceText);
+    this.wind.add(this.speedTextVal);
+    this.wind.add(this.speedTextUnit);
+    this.wind.add(this.distanceTextUnit);
     this.wind.add(this.distanceTextVal);
-    this.wind.add(this.highspeedText);
+    this.wind.add(this.highspeedTextUnit);
     this.wind.add(this.highspeedTextVal);
     if( this.debug )
       this.wind.add(this.debugText);
