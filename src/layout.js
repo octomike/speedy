@@ -38,7 +38,7 @@ var Layout = function(debug){
     });
 
     this.speedText = new UI.Text({
-      text: '23.5',
+      text: '--.-',
       color: 'white',
       font: 'bitham-42-light',
       position: new Vector2(18,34),
@@ -67,7 +67,7 @@ var Layout = function(debug){
     });
 
     this.avgTextVal = new UI.Text({
-      text: '01.1 10.2 15.3',
+      text: '--.- --.- --.-',
       color: 'white',
       font: 'gothic-14',
       position: new Vector2(64,84),
@@ -87,7 +87,7 @@ var Layout = function(debug){
     });
 
     this.highspeedTextVal = new UI.Text({
-      text: '0 km/h',
+      text: '- km/h',
       color: 'white',
       font: 'gothic-14-bold',
       position: new Vector2(64,100),
