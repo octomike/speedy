@@ -7,11 +7,22 @@ var Speedy = {};
 Speedy.layout = new Layout({debug: true});
 
 /* data storage */
-Speedy.timings = {
-  samples: [],  /* holds every received dataport in the last minute */
-  highspeed: 0,
-  distance: 0,
-};
+var storedTimings = JSON.parse(localStorage.getItem('speedytimings'));
+//console.log(JSON.stringify(storedTimings));
+if(storedTimings === undefined || storedTimings === {}) {
+    /* first start ever */
+    Speedy.timings = {
+      samples: [],  /* holds every received dataport in the last minute */
+      highspeed: 0,
+      distance: 0,
+    };
+} else {
+    /* load last values via localStorage */
+    Speedy.timings = storedTimings;
+    //console.log(JSON.stringify({storage: Speedy.timings}));
+    Speedy.layout.setHighspeed(Speedy.timings.highspeed);
+    Speedy.layout.setDistance(Speedy.timings.distance);
+}
 
 /* watchposition */
 Speedy.locationOptions = {
@@ -178,6 +189,11 @@ Speedy.resetHighspeed = function(){
   Speedy.timings.highspeed=0;
 };
 
+Speedy.exitHandler = function(){
+  console.log('storing: ' + JSON.stringify(Speedy.timings));
+  localStorage.setItem('speedytimings', JSON.stringify(Speedy.timings));
+};
+
 Speedy.menuFunctions = [
   Speedy.resetAverages,
   Speedy.resetHighspeed,
@@ -194,6 +210,7 @@ Pebble.addEventListener('ready',
 
 Speedy.layout.show();
 Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
+Speedy.layout.setBackButton(Speedy.exitHandler);
 console.log('registering geolocation handlers');
 console.log(JSON.stringify(Speedy.resetAverages));
 console.log(JSON.stringify(Speedy.menuFunctions));

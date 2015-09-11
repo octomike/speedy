@@ -196,13 +196,18 @@ Layout.prototype = {
       console.log('select button clicked');
       menu.show();
     });
+  },
+
+  setBackButton: function(handler){
+    var menu = this.menu;
+    var wind = this.wind;
     this.wind.on('click','back',function (e){
       console.log('back button clicked');
       wind.show();
       menu.hide();
+      handler();
     });
   },
-
   show: function() {
     this.wind.show();
   },
