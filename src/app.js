@@ -4,7 +4,7 @@ var Layout = require('layout');
 /* namespace */
 var Speedy = {};
 
-Speedy.layout = new Layout({debug: true});
+Speedy.layout = new Layout({debug: false});
 
 /* data storage */
 var storedTimings = JSON.parse(localStorage.getItem('speedytimings'));
@@ -27,7 +27,7 @@ if(storedTimings === undefined || storedTimings === {}) {
 /* watchposition */
 Speedy.locationOptions = {
   enableHighAccuracy: true,
-  maximumAge: 1000,
+  maximumAge: 2000,
   timeout: 5000
 };
 
@@ -137,12 +137,13 @@ Speedy.locationSuccess = function(pos){
   };
   if (newcoord.time - oldcoord.time < 0)
     return; // TODO drop out of order updates for now
+  console.log(JSON.stringify({pos: pos}));
   var d = Geolib.getDistance(oldcoord,newcoord);
   //d = d - Speedy.oldpos.coords.accuracy - pos.coords.accuracy;
   //d = d - pos.coords.accuracy;
   //Speedy.timings.distance += d > 0 ? d : 0;
   d = d > 0 ? d : 0;
-  //console.log(JSON.stringify(d));
+  console.log(JSON.stringify({distance: d}));
   Speedy.timings.distance += d;
   Speedy.layout.setDistance(Speedy.timings.distance);
 

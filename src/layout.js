@@ -7,10 +7,11 @@ var Layout = function(opt){
     this.debug = opt.debug;
 
     this.debugBorderColor = function(){
-      if( this.debug )
+      if( this.debug ){
         return 'white'
-      else
+      } else {
         return 'black'
+      }
     };
 
     this.initNumber = function(){
@@ -164,6 +165,10 @@ Layout.prototype = {
   constructor: Layout,
 
   debug: false,
+
+  setDebug: function(val) {
+    this.debugText.text(val);
+  },
 
   setSpeed: function(val) {
     this.speedText.text(val.toFixed(1));
