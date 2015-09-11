@@ -170,11 +170,11 @@ Layout.prototype = {
   },
 
   setDistance: function(val) {
-    this.distanceTextVal.text((val/1000).toFixed(1) + ' km');
+    this.distanceTextVal.text((val/1000).toFixed(1));
   },
 
   setHighspeed: function(val) {
-    this.highspeedTextVal.text(val.toFixed(1) + 'km/h');
+    this.highspeedTextVal.text(val.toFixed(1));
   },
 
   setAvg: function(val1, val5, val15){
