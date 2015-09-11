@@ -20,6 +20,10 @@ Speedy.locationOptions = {
   timeout: 5000
 };
 
+/* other */
+
+Speedy.lagginess = 0;
+
 /* menu config */
 Speedy.menuSections = [{
   title: 'Speedy Actions',
@@ -133,7 +137,12 @@ Speedy.locationSuccess = function(pos){
 
   var speed;
   if( d === 0 )
-    return;
+    if( Speedy.lagginess == 3){
+        Speedy.laggginess = 0;
+    } else {
+        Speedy.laggginess++;
+        return;
+    }
   else {
     if(pos.coords.speed !== null)
       speed = pos.coords.speed;
