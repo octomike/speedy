@@ -189,7 +189,7 @@ Layout.prototype = {
   },
 
   setAvg: function(val1, val5, val15){
-    this.avgTextVal.text(val1.toFixed(1) + ' ' + val5.toFixed(1) + ' ' + val15.toFixed(1));
+    this.avgTextVal.text(val1.toFixed(1) + '\n' + val5.toFixed(1) + '\n' + val15.toFixed(1));
   },
 
   setMenu: function(sections,handlers) {
