@@ -107,7 +107,7 @@ Speedy.updateAverages = function(distance, timedelta){
     }
   }
   //console.log(JSON.stringify(Speedy.timings.samples));
-  
+
   avg1 = Speedy.timings.samples.slice(-num1).reduce(function(a,b){
           return (a + b.distance);
          },0)*1000/time1;
@@ -117,7 +117,7 @@ Speedy.updateAverages = function(distance, timedelta){
   avg15 = Speedy.timings.samples.slice(-num15).reduce(function(a,b){
             return (a + b.distance);
           },0)*1000/time15;
-  
+
   if (time15 > 15*60000) {
     /* discard old sample only when buffer is "full" (15min + x) */
     Speedy.timings.samples.shift();
@@ -149,39 +149,31 @@ Speedy.locationSuccess = function(pos){
   };
   if (newcoord.time - oldcoord.time < 0)
     return; // TODO drop out of order updates for now
-  console.log(JSON.stringify({pos: pos}));
   var d = Geolib.getDistance(oldcoord,newcoord);
   //d = d - Speedy.oldpos.coords.accuracy - pos.coords.accuracy;
   //d = d - pos.coords.accuracy;
   //Speedy.timings.distance += d > 0 ? d : 0;
   d = d > 0 ? d : 0;
-  console.log(JSON.stringify({distance: d}));
+  //console.log(JSON.stringify({distance: d}));
   Speedy.timings.distance += d;
-  Speedy.layout.setDistance(Speedy.timings.distance);
 
-  var speed;
+  var speed = pos.coords.speed;
   if( d === 0 )
     if( Speedy.lagginess == 3){
-        Speedy.laggginess = 0;
+        Speedy.lagginess = 0;
     } else {
-        Speedy.laggginess++;
+        Speedy.lagginess++;
         return;
     }
   else {
-    if(pos.coords.speed !== null)
-      speed = pos.coords.speed;
-    else{
-      speed = d/(newcoord.time - oldcoord.time)/1000;
-    }
+    if(speed === null || speed == {} || speed == 'undefined')
+        speed = d*1000/(newcoord.time - oldcoord.time);
   }
   Speedy.layout.setSpeed(3.6*speed);
-
+  Speedy.layout.setDistance(Speedy.timings.distance);
   Speedy.timings.highspeed = speed > Speedy.timings.highspeed ? speed : Speedy.timings.highspeed;
   Speedy.layout.setHighspeed(3.6*Speedy.timings.highspeed);
-
-  //console.log(JSON.stringify({speed: speed}));
   Speedy.updateAverages(d, newcoord.time - oldcoord.time);
-
   Speedy.clonepos(pos);
 };
 
@@ -224,7 +216,6 @@ Speedy.layout.show();
 Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
 Speedy.layout.setBackButton(Speedy.exitHandler);
 console.log('registering geolocation handlers');
-console.log(JSON.stringify(Speedy.resetAverages));
-console.log(JSON.stringify(Speedy.menuFunctions));
 // Get location updates
 Speedy.id = navigator.geolocation.watchPosition(Speedy.locationSuccess, Speedy.locationError, Speedy.locationOptions);
+console.log('done');
