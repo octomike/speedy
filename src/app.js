@@ -9,7 +9,8 @@ Speedy.layout = new Layout({debug: Speedy.debug });
 
 /* data storage */
 var storedTimings = JSON.parse(localStorage.getItem('speedytimings'));
-if(storedTimings === undefined || storedTimings === {}) {
+console.log(JSON.stringify({store: storedTimings}));
+if(storedTimings === undefined || storedTimings === {} || storedTimings === null) {
     /* first start ever */
     Speedy.timings = {
       samples: [],  /* holds every received dataport in the last minute */
@@ -53,6 +54,25 @@ Speedy.menuSections = [{
     subtitle: ''
   }]
 }];
+
+Speedy.resetAll = function(){
+  Speedy.resetAverages();
+  Speedy.resetDistance();
+  Speedy.resetHighspeed();
+};
+
+Speedy.resetAverages = function(){
+  Speedy.timings.samples=[];
+};
+
+Speedy.resetDistance = function(){
+  Speedy.timings.distance=0;
+};
+
+Speedy.resetHighspeed = function(){
+  Speedy.timings.highspeed=0;
+};
+
 Speedy.menuFunctions = [
   Speedy.resetAll,
   Speedy.resetAverages,
@@ -65,7 +85,7 @@ Speedy.log = function( obj){
   if( Speedy.debug ){
     console.log(JSON.stringify(obj));
   }
-}
+};
 
 Speedy.clonepos = function(pos){
   Speedy.oldpos = {
@@ -174,24 +194,6 @@ Speedy.locationSuccess = function(pos){
 Speedy.locationError = function(err){
     console.log('location error (' + err.code + '): ' + err.message);
     Speedy.layout.setUnavailable('no GPS');
-};
-
-Speedy.resetAll = function(){
-  Speedy.resetAverages();
-  Speedy.resetDistance();
-  Speedy.resetHighspeed();
-};
-
-Speedy.resetAverages = function(){
-  Speedy.timings.samples=[];
-};
-
-Speedy.resetDistance = function(){
-  Speedy.timings.distance=0;
-};
-
-Speedy.resetHighspeed = function(){
-  Speedy.timings.highspeed=0;
 };
 
 Speedy.exitHandler = function(){
