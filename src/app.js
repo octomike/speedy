@@ -193,7 +193,9 @@ Speedy.locationSuccess = function(pos){
 
 
 Speedy.locationError = function(err){
-console.log('location error (' + err.code + '): ' + err.message);
+    console.log('location error (' + err.code + '): ' + err.message);
+    Speedy.layout.setUnavailable('no GPS');
+};
 
 Speedy.resetAll = function(){
   Speedy.resetAverages();

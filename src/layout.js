@@ -170,8 +170,14 @@ Layout.prototype = {
     this.debugText.text(val);
   },
 
+  setUnavailable: function(msg) {
+    this.speedTextVal.text('--.-');
+    this.speedTextUnit.text(msg);
+  },
+
   setSpeed: function(val) {
-    this.speedText.text(val.toFixed(1));
+    this.speedTextVal.text(val.toFixed(1));
+    this.speedTextUnit.text('km/h');
   },
 
   setDistance: function(val) {
