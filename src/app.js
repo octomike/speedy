@@ -3,12 +3,12 @@ var Layout = require('layout');
 
 /* namespace */
 var Speedy = {};
+Speedy.debug = false;
 
-Speedy.layout = new Layout({debug: false});
+Speedy.layout = new Layout({debug: Speedy.debug });
 
 /* data storage */
 var storedTimings = JSON.parse(localStorage.getItem('speedytimings'));
-//console.log(JSON.stringify(storedTimings));
 if(storedTimings === undefined || storedTimings === {}) {
     /* first start ever */
     Speedy.timings = {
@@ -19,7 +19,6 @@ if(storedTimings === undefined || storedTimings === {}) {
 } else {
     /* load last values via localStorage */
     Speedy.timings = storedTimings;
-    //console.log(JSON.stringify({storage: Speedy.timings}));
     Speedy.layout.setHighspeed(Speedy.timings.highspeed);
     Speedy.layout.setDistance(Speedy.timings.distance);
 }
@@ -32,7 +31,6 @@ Speedy.locationOptions = {
 };
 
 /* other */
-
 Speedy.lagginess = 0;
 
 /* menu config */
@@ -55,7 +53,6 @@ Speedy.menuSections = [{
     subtitle: ''
   }]
 }];
-
 Speedy.menuFunctions = [
   Speedy.resetAll,
   Speedy.resetAverages,
@@ -63,12 +60,12 @@ Speedy.menuFunctions = [
   Speedy.resetDistance,
 ];
 
-
-
 /* helpers */
-Speedy.sum = function(a,b){
-  return a+b;
-};
+Speedy.log = function( obj){
+  if( Speedy.debug ){
+    console.log(JSON.stringify(obj));
+  }
+}
 
 Speedy.clonepos = function(pos){
   Speedy.oldpos = {
@@ -106,7 +103,6 @@ Speedy.updateAverages = function(distance, timedelta){
       num15++;
     }
   }
-  //console.log(JSON.stringify(Speedy.timings.samples));
 
   avg1 = Speedy.timings.samples.slice(-num1).reduce(function(a,b){
           return (a + b.distance);
@@ -122,26 +118,9 @@ Speedy.updateAverages = function(distance, timedelta){
     /* discard old sample only when buffer is "full" (15min + x) */
     Speedy.timings.samples.shift();
   }
-  //console.log(JSON.stringify({num1: num1, num5: num5, num15: num15}));
-  //console.log(JSON.stringify({time1: time1, time5: time5, time15: time15}));
-  //console.log(JSON.stringify({avg1: avg1, avg5: avg5, avg15: avg15}));
 
   /* update layout */
   Speedy.layout.setAvg(3.6*avg1, 3.6*avg5, 3.6*avg15);
-};
-
-Speedy.locationSuccessSimulate = function(){
-  var pos = {
-    coords: {
-      latitude : 52 + Math.random()/10000,
-      longitude : 30 + Math.random()/10000,
-      altitude: 0,
-      accuracy : 1,
-      speed: null,
-    },
-    timestamp: Date.now()
-  };
-  Speedy.locationSuccess(pos);
 };
 
 Speedy.locationSuccess = function(pos){
@@ -168,7 +147,7 @@ Speedy.locationSuccess = function(pos){
   //d = d - pos.coords.accuracy;
   //Speedy.timings.distance += d > 0 ? d : 0;
   d = d > 0 ? d : 0;
-  //console.log(JSON.stringify({distance: d}));
+  Speedy.log({distance: d});
   Speedy.timings.distance += d;
 
   var speed = pos.coords.speed;
@@ -216,12 +195,26 @@ Speedy.resetHighspeed = function(){
 };
 
 Speedy.exitHandler = function(){
-  console.log('storing: ' + JSON.stringify(Speedy.timings));
   localStorage.setItem('speedytimings', JSON.stringify(Speedy.timings));
 };
 
-/* register event handlers */
+/* debug piece, when no GPS is available */
+/*
 setInterval(Speedy.locationSuccessSimulate, 1000);
+Speedy.locationSuccessSimulate = function(){
+  var pos = {
+    coords: {
+      latitude : 52 + Math.random()/10000,
+      longitude : 30 + Math.random()/10000,
+      altitude: 0,
+      accuracy : 1,
+      speed: null,
+    },
+    timestamp: Date.now()
+  };
+  Speedy.locationSuccess(pos);
+};
+*/
 
 Pebble.addEventListener('ready',
   function(e) {
@@ -231,7 +224,4 @@ Pebble.addEventListener('ready',
 Speedy.layout.show();
 Speedy.layout.setMenu(Speedy.menuSections, Speedy.menuFunctions);
 Speedy.layout.setBackButton(Speedy.exitHandler);
-console.log('registering geolocation handlers');
-// Get location updates
 Speedy.id = navigator.geolocation.watchPosition(Speedy.locationSuccess, Speedy.locationError, Speedy.locationOptions);
-console.log('done');
