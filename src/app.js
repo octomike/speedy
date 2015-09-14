@@ -130,6 +130,20 @@ Speedy.updateAverages = function(distance, timedelta){
   Speedy.layout.setAvg(3.6*avg1, 3.6*avg5, 3.6*avg15);
 };
 
+Speedy.locationSuccessSimulate = function(){
+  var pos = {
+    coords: {
+      latitude : 52 + Math.random()/10000,
+      longitude : 30 + Math.random()/10000,
+      altitude: 0,
+      accuracy : 1,
+      speed: null,
+    },
+    timestamp: Date.now()
+  };
+  Speedy.locationSuccess(pos);
+};
+
 Speedy.locationSuccess = function(pos){
   if( typeof(Speedy.oldpos) ==  'undefined' ){
     Speedy.clonepos(pos);
@@ -205,7 +219,7 @@ Speedy.exitHandler = function(){
 };
 
 /* register event handlers */
-//setInterval(locationSuccessSimulate, 1000);
+setInterval(Speedy.locationSuccessSimulate, 1000);
 
 Pebble.addEventListener('ready',
   function(e) {
