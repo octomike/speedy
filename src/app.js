@@ -39,6 +39,10 @@ Speedy.lagginess = 0;
 Speedy.menuSections = [{
   title: 'Speedy Actions',
   items: [{
+    title: 'Reset All',
+    subtitle: ''
+  },
+  {
     title: 'Reset Averages',
     subtitle: ''
   },
@@ -51,6 +55,14 @@ Speedy.menuSections = [{
     subtitle: ''
   }]
 }];
+
+Speedy.menuFunctions = [
+  Speedy.resetAll,
+  Speedy.resetAverages,
+  Speedy.resetHighspeed,
+  Speedy.resetDistance,
+];
+
 
 
 /* helpers */
@@ -176,6 +188,11 @@ Speedy.locationSuccess = function(pos){
 
 Speedy.locationError = function(err){
 console.log('location error (' + err.code + '): ' + err.message);
+
+Speedy.resetAll = function(){
+  Speedy.resetAverages();
+  Speedy.resetDistance();
+  Speedy.resetHighspeed();
 };
 
 Speedy.resetAverages = function(){
@@ -194,12 +211,6 @@ Speedy.exitHandler = function(){
   console.log('storing: ' + JSON.stringify(Speedy.timings));
   localStorage.setItem('speedytimings', JSON.stringify(Speedy.timings));
 };
-
-Speedy.menuFunctions = [
-  Speedy.resetAverages,
-  Speedy.resetHighspeed,
-  Speedy.resetDistance,
-];
 
 /* register event handlers */
 //setInterval(locationSuccessSimulate, 1000);
